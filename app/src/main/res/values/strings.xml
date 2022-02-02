@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Meus Pedidos Store</string>
+    <string name="order_status_called">Chamado</string>
+    <string name="orders_called">Pedidos Chamados</string>
+</resources>
