@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(entities = [Archived::class], version = 1, exportSchema = false)
-abstract class OrderStoreDatabase: RoomDatabase() {
+abstract class OrderStoreDatabase : RoomDatabase() {
 
     abstract fun archivedDao(): ArchivedDao
 
@@ -23,7 +23,7 @@ abstract class OrderStoreDatabase: RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     OrderStoreDatabase::class.java,
-                    "orderDatabase"
+                    "orderStoreDatabase"
                 ).build()
                 INSTANCE = instance
                 return instance

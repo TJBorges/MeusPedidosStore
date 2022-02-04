@@ -1,5 +1,14 @@
 <resources>
     <string name="app_name">Meus Pedidos Store</string>
-    <string name="order_status_called">Chamado</string>
     <string name="orders_called">Pedidos Chamados</string>
+
+    <!-- order -->
+
+
+    <!-- archived -->
+    <string name="archived_list_empty">Você ainda não chamou nenhum pedido</string>
+    <string name="order_label">Pedido:</string>
+    <string name="order_status">Status:</string>
+    <string name="order_date_time">Data e Horário:</string>
+    <string name="order_status_called">Chamado</string>
 </resources>

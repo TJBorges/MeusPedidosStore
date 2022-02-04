@@ -1,9 +1,13 @@
 package com.example.meuspedidosstore
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.meuspedidosstore.data.Archived
 import com.example.meuspedidosstore.data.NotificationData
 import com.example.meuspedidosstore.data.PushNotificationData
@@ -12,18 +16,17 @@ import com.example.meuspedidosstore.service.RetrofitInstance
 import com.example.meuspedidosstore.util.DataStore
 import com.example.meuspedidosstore.util.DateUtil
 import com.example.meuspedidosstore.util.ValidateInsertOrder
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
+import com.example.meuspedidosstore.viewModel.ArchivedViewModel
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val validateInsertOrder = ValidateInsertOrder()
+    private lateinit var mArchivedViewModel: ArchivedViewModel
     private val dataStore = DataStore()
     private val dateUtil = DateUtil()
     private val TAG = "MainActivity"
@@ -33,6 +36,9 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+
+        mArchivedViewModel = ViewModelProvider(this)[ArchivedViewModel::class.java]
 
         binding.btCallOrder.setOnClickListener {
             val numberOrder = binding.etNumberOrder.text.toString().trim().uppercase()
@@ -42,13 +48,13 @@ class MainActivity : AppCompatActivity() {
                 if (title.isNotEmpty()) {
                     PushNotificationData(
                         NotificationData(title, message),
-                        "f94W-0dATMCm56USEPfJJ_:APA91bGgO8FPxRL9gBrfOmS6WqyTNeww2zgAnfnTQLnDJovSkyocoSq4SIKAtzU2RnEAwFpm9qavuj8qRBekHlOz8uuVQ3Ale0Bg6a4x1xutPjjZWnStEqb9ooIrGPnLf-nqlgAfMPPG"
+                        "/topics/$numberOrder"
                     ).also {
                         sendNotification(it)
                     }
                 }
-                Toast.makeText(this, "O pedido $numberOrder foi chamado", Toast.LENGTH_LONG).show()
                 insertArchivedToDatabase(numberOrder)
+                Toast.makeText(this, "O pedido $numberOrder foi chamado", Toast.LENGTH_LONG).show()
                 binding.etNumberOrder.text.clear()
             } else {
                 Toast.makeText(this, "Número do pedido inválido", Toast.LENGTH_SHORT).show()
@@ -68,6 +74,7 @@ class MainActivity : AppCompatActivity() {
             nameStore = nameStore,
             icon = icon
         )
+        mArchivedViewModel.addArchived(archived)
     }
 
     private fun sendNotification(notification: PushNotificationData) =
@@ -76,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                 val response = RetrofitInstance.api.postNotification(notification)
                 if (response.isSuccessful) {
                     Log.d(TAG, "Response: ${Gson().toJson(response)}")
+
                 } else {
                     Log.e(TAG, response.errorBody().toString())
                 }
@@ -83,4 +91,22 @@ class MainActivity : AppCompatActivity() {
                 Log.e(TAG, e.toString())
             }
         }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.btArchived -> goToArchived("")
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun goToArchived(numberOrder: String) {
+        val intent = Intent(this, ArchiveActivity::class.java)
+        intent.putExtra("numberOrder", numberOrder)
+        startActivity(intent)
+    }
 }
