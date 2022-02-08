@@ -42,8 +42,9 @@ class MainActivity : AppCompatActivity() {
 
         binding.btCallOrder.setOnClickListener {
             val numberOrder = binding.etNumberOrder.text.toString().trim().uppercase()
+            val nameStore = dataStore.name(numberOrder.substring(0,3))
             if (validateInsertOrder.validateNumberOrder(numberOrder)) {
-                val title = "Seu pedido $numberOrder está pronto"
+                val title = "Seu pedido $numberOrder na $nameStore está pronto"
                 val message = "Dirija-se ao balcão para a retirada"
                 if (title.isNotEmpty()) {
                     PushNotificationData(
