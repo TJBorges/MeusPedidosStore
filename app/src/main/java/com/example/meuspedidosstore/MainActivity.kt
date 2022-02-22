@@ -1,10 +1,13 @@
 package com.example.meuspedidosstore
 
+import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -12,6 +15,7 @@ import com.example.meuspedidosstore.data.Archived
 import com.example.meuspedidosstore.data.NotificationData
 import com.example.meuspedidosstore.data.PushNotificationData
 import com.example.meuspedidosstore.databinding.ActivityMainBinding
+import com.example.meuspedidosstore.repository.ArchivedRepository
 import com.example.meuspedidosstore.service.RetrofitInstance
 import com.example.meuspedidosstore.util.DataStore
 import com.example.meuspedidosstore.util.DateUtil
@@ -27,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val validateInsertOrder = ValidateInsertOrder()
     private lateinit var mArchivedViewModel: ArchivedViewModel
+    private lateinit var archivedRepository: ArchivedRepository
     private val dataStore = DataStore()
     private val dateUtil = DateUtil()
     private val TAG = "MainActivity"
@@ -38,30 +43,43 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
+        binding.btnQrCode.setOnClickListener { openCamera() }
+
         mArchivedViewModel = ViewModelProvider(this)[ArchivedViewModel::class.java]
 
         binding.btCallOrder.setOnClickListener {
             val numberOrder = binding.etNumberOrder.text.toString().trim().uppercase()
-            val nameStore = dataStore.name(numberOrder.substring(0,3))
-            if (validateInsertOrder.validateNumberOrder(numberOrder)) {
-                val title = "Seu pedido $numberOrder na $nameStore está pronto"
-                val message = "Dirija-se ao balcão para a retirada"
-                if (title.isNotEmpty()) {
-                    PushNotificationData(
-                        NotificationData(title, message),
-                        "/topics/$numberOrder"
-                    ).also {
-                        sendNotification(it)
-                    }
-                }
-                insertArchivedToDatabase(numberOrder)
-                Toast.makeText(this, "O pedido $numberOrder foi chamado", Toast.LENGTH_LONG).show()
-                binding.etNumberOrder.text.clear()
-            } else {
-                Toast.makeText(this, "Número do pedido inválido", Toast.LENGTH_SHORT).show()
-            }
+            callOrder(numberOrder)
         }
+    }
 
+    private fun callOrder(numberOrder: String){
+        hideKeyboard()
+        if (validateInsertOrder.validateNumberOrder(numberOrder)) {
+            val nameStore = dataStore.name(numberOrder.substring(0,3))
+            val title = "Seu pedido $numberOrder na $nameStore está pronto"
+            val message = "Dirija-se ao balcão para a retirada"
+            if (title.isNotEmpty()) {
+                PushNotificationData(
+                    NotificationData(title, message),
+                    "/topics/$numberOrder"
+                ).also {
+                    sendNotification(it)
+                }
+            }
+            insertArchivedToDatabase(numberOrder)
+            toastShow(numberOrder, 0)
+            binding.etNumberOrder.text.clear()
+        } else {
+            toastShow(null, 1)
+        }
+    }
+
+    private fun toastShow(numberOrder: String?, type: Int) {
+        if (type == 0)
+            Toast.makeText(this, "O pedido $numberOrder foi chamado", Toast.LENGTH_SHORT).show()
+        else
+            Toast.makeText(this, "Número do pedido inválido", Toast.LENGTH_SHORT).show()
     }
 
     private fun insertArchivedToDatabase(numberOrder: String) {
@@ -109,5 +127,45 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, ArchiveActivity::class.java)
         intent.putExtra("numberOrder", numberOrder)
         startActivity(intent)
+    }
+
+    private fun openCamera() {
+        val intent = Intent(this, QrCodeActivity::class.java)
+        startActivityForResult(intent, 0)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 0) {
+            if (resultCode == Activity.RESULT_OK) {
+                val numberOrderReturn = data!!.getStringExtra("keyName")?.uppercase()
+
+                if (!numberOrderReturn.isNullOrEmpty()) {
+                    var builder = AlertDialog.Builder(this@MainActivity)
+                    builder.setTitle(R.string.call_order_title)
+                    builder.setMessage("Deseja chamar o pedido $numberOrderReturn para o cliente?")
+                    builder.setPositiveButton("Sim") { dialog, id ->
+                        callOrder(numberOrderReturn)
+                        println("Chamado $numberOrderReturn")
+                        toastShow(numberOrderReturn, 1)
+                        dialog.dismiss()
+                    }
+                    builder.setNegativeButton("Não") { dialog, id ->
+                        dialog.cancel()
+                    }
+                    builder.setCancelable(false)
+                    var alert = builder.create()
+                    alert.show()
+                }
+            }
+        }
+    }
+
+    private fun hideKeyboard() {
+        if (currentFocus != null) {
+            val inputMethodManager: InputMethodManager =
+                getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+        }
     }
 }

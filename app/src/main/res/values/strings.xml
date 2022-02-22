@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">Meus Pedidos Store</string>
     <string name="orders_called">Pedidos Chamados</string>
+    <string name="qr_code_title">QR Code</string>
 
     <!-- order -->
+    <string name="call_order_title">Chamar Pedido?</string>
 
 
     <!-- archived -->

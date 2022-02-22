@@ -3,6 +3,7 @@
     package="com.example.meuspedidosstore">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -36,6 +37,11 @@
         <activity android:name=".ArchiveActivity"
             android:label="@string/orders_called"
             android:parentActivityName=".ArchiveActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.example.meuspedidosstore.QrCodeActivity"
+            android:label="@string/qr_code_title"
+            android:parentActivityName="com.example.meuspedidosstore.QrCodeActivity"
             android:screenOrientation="portrait" />
 
     </application>
