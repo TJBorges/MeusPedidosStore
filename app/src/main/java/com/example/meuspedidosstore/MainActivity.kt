@@ -57,8 +57,8 @@ class MainActivity : AppCompatActivity() {
         hideKeyboard()
         if (validateInsertOrder.validateNumberOrder(numberOrder)) {
             val nameStore = dataStore.name(numberOrder.substring(0,3))
-            val title = "Seu pedido $numberOrder na $nameStore está pronto"
-            val message = "Dirija-se ao balcão para a retirada"
+            val title = getString(R.string.notification_title, numberOrder, nameStore)
+            val message = getString(R.string.notification_message)
             if (title.isNotEmpty()) {
                 PushNotificationData(
                     NotificationData(title, message),

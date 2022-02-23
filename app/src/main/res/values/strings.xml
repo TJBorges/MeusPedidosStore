@@ -13,4 +13,9 @@
     <string name="order_status">Status:</string>
     <string name="order_date_time">Data e Horário:</string>
     <string name="order_status_called">Chamado</string>
+
+    <!-- notification -->
+    <string name="notification_title">Seu pedido %s na %s está pronto</string>
+    <string name="notification_message">Dirija-se ao balcão para a retirada</string>
+
 </resources>
