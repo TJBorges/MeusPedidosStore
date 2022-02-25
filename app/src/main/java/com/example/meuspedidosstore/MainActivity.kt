@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
                 if (!numberOrderReturn.isNullOrEmpty()) {
                     var builder = AlertDialog.Builder(this@MainActivity)
                     builder.setTitle(R.string.call_order_title)
-                    builder.setMessage("Deseja chamar o pedido $numberOrderReturn para o cliente?")
+                    builder.setMessage(getString(R.string.call_order_message, numberOrderReturn))
                     builder.setPositiveButton("Sim") { dialog, id ->
                         callOrder(numberOrderReturn)
                         println("Chamado $numberOrderReturn")

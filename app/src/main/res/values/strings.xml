@@ -4,8 +4,8 @@
     <string name="qr_code_title">QR Code</string>
 
     <!-- order -->
-    <string name="call_order_title">Chamar Pedido?</string>
-
+    <string name="call_order_title">Chamar Pedido</string>
+    <string name="call_order_message">Deseja chamar o pedido %s para o cliente?</string>
 
     <!-- archived -->
     <string name="archived_list_empty">Você ainda não chamou nenhum pedido</string>
